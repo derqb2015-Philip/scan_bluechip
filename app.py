@@ -93,7 +93,7 @@ if st.button("🔍 QUÉT THỊ TRƯỜNG"):
         try:
             df = stock_historical_data(
                 symbol=stock,
-                start_date="2024-01-01"
+                start_date="2026-02-28"
             )
 
             df = calculate_indicators(df)
@@ -120,3 +120,4 @@ if st.button("🔍 QUÉT THỊ TRƯỜNG"):
     else:
 
         st.warning("Không có tín hiệu hôm nay.")
+
