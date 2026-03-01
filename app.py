@@ -8,17 +8,18 @@ st.set_page_config(layout="wide")
 STOCKS = [
 "VCB","BID","CTG","TCB","MBB",
 "VIC","VHM","VRE",
-"HPG","HSG",
+"HPG","HSG","DPM","DCM","PLC",
 "FPT","MWG",
-"GAS","PLX",
+"GAS","PLX","OIL","PVS","PVT","PVD","BSR",
 "SSI","VND",
 "VPB","ACB",
-"SAB","MSN",
+"SAB","MSN","MML","MCH","MSR",
 "BVH","POW",
 "STB","TPB",
 "PNJ","VJC",
 "GVR","DGC",
-"KDH","BCM"
+"KDH","BCM",
+"VJC","HAH","CEO","NLG"
 ]
 
 def calculate_indicators(df):
@@ -117,4 +118,5 @@ if st.button("🔍 QUÉT THỊ TRƯỜNG"):
         df_result = pd.DataFrame(results)
         st.dataframe(df_result, use_container_width=True)
     else:
+
         st.warning("Không có tín hiệu hôm nay.")
