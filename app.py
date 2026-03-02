@@ -69,9 +69,9 @@ def check_signal(df):
         prev['macd'] > prev['signal'] and
         latest['macd'] < latest['signal'] and
         latest['close'] >= latest['upper'] * 0.98 and
-        latest['%K'] > 70 and
+        latest['%K'] > 60 and
         latest['%K'] < latest['%D'] and
-        latest['rsi'] > 65 and
+        latest['rsi'] > 55 and
         latest['rsi'] < prev['rsi']
     )
 
@@ -120,6 +120,7 @@ if st.button("🔍 QUÉT THỊ TRƯỜNG BLUECHIP_VN"):
     else:
 
         st.warning("Không có tín hiệu hôm nay.")
+
 
 
 
