@@ -59,7 +59,7 @@ def check_signal(df):
         prev['macd'] < prev['signal'] and
         latest['macd'] > latest['signal'] and
         latest['close'] <= latest['lower'] * 1.02 and
-        latest['%K'] < 20 and
+        latest['%K'] < 30 and
         latest['%K'] > latest['%D'] and
         latest['rsi'] < 35 and
         latest['rsi'] > prev['rsi']
@@ -69,7 +69,7 @@ def check_signal(df):
         prev['macd'] > prev['signal'] and
         latest['macd'] < latest['signal'] and
         latest['close'] >= latest['upper'] * 0.98 and
-        latest['%K'] > 80 and
+        latest['%K'] > 70 and
         latest['%K'] < latest['%D'] and
         latest['rsi'] > 65 and
         latest['rsi'] < prev['rsi']
@@ -93,7 +93,7 @@ if st.button("🔍 QUÉT THỊ TRƯỜNG"):
         try:
             df = stock_historical_data(
                 symbol=stock,
-                start_date="2026-02-28"
+                start_date="2025-01-01"
             )
 
             df = calculate_indicators(df)
@@ -120,4 +120,5 @@ if st.button("🔍 QUÉT THỊ TRƯỜNG"):
     else:
 
         st.warning("Không có tín hiệu hôm nay.")
+
 
