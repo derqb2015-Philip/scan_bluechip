@@ -85,7 +85,7 @@ def check_signal(df):
 
 st.title("📊 BLUECHIP SCANNER VN")
 
-if st.button("🔍 QUÉT THỊ TRƯỜNG"):
+if st.button("🔍 QUÉT THỊ TRƯỜNG BLUECHIP_VN"):
 
     results = []
 
@@ -120,5 +120,6 @@ if st.button("🔍 QUÉT THỊ TRƯỜNG"):
     else:
 
         st.warning("Không có tín hiệu hôm nay.")
+
 
 
