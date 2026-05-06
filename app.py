@@ -97,7 +97,7 @@ if st.button("🚀 QUÉT TOÀN THỊ TRƯỜNG"):
     for i, stock in enumerate(STOCKS[:300]):
 
         try:
-            df = stock_historical_data(stock, "2024-01-01")
+            df = stock_historical_data(stock, "2026-12-01")
             if len(df) < 30:
                 continue
 
