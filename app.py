@@ -4,7 +4,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from vnstock import Vnstock
-import ta
 import time
 
 st.set_page_config(layout="wide")
