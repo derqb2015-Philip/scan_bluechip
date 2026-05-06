@@ -9,8 +9,15 @@ import time
 st.set_page_config(layout="wide")
 
 # ===== DANH SÁCH MÃ =====
-STOCKS = stock_listing()['symbol'].tolist()
-
+STOCKS =  [
+    "VCB","BID","CTG","TCB","MBB","VPB","ACB","STB","SHB",
+    "HPG","HSG","NKG","FPT","MWG","PNJ","REE","GMD","VHC",
+    "VNM","SAB","MSN","SSI","VND","HCM","GAS","PLX","POW",
+    "BVH","VIC","VHM","VRE","DXG","DIG","KBC","PDR","NVL",
+    "DPM","DCM","ANV","PVS","PVD","KDH","HDG","HDC","CSV",
+    "CMG","BWE","SZC","TCH","IDC","VPI","BCM","CTR","CII",
+    "HAG","HNG","NLG","KSB","GEX","VGC","MSB","OCB","TPB"
+    ]
 # ===== INDICATORS =====
 def calc(df):
 
