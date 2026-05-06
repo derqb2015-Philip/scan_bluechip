@@ -17,6 +17,7 @@ STOCKS =  [
     "DPM","DCM","ANV","PVS","PVD","KDH","HDG","HDC","CSV",
     "CMG","BWE","SZC","TCH","IDC","VPI","BCM","CTR","CII",
     "HAG","HNG","NLG","KSB","GEX","VGC","MSB","OCB","TPB"
+    "HHV","VIX","GEL","GEE","PLC","MSR","DGC","PET","PC1"
     ]
 # ===== INDICATORS =====
 def calc(df):
