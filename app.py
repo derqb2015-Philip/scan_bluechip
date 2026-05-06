@@ -1,126 +1,125 @@
+from vnstock import register_user
+register_user(api_key='vnstock_585e95e6d7c5e379910fa8f6be9fecae')
 import streamlit as st
 import pandas as pd
 import numpy as np
-from vnstock import *
+from vnstock import Vnstock
+import ta
+import time
 
 st.set_page_config(layout="wide")
 
-STOCKS = [
-"VCB","BID","CTG","TCB","MBB",
-"VIC","VHM","VRE",
-"HPG","HSG","DPM","DCM","PLC",
-"FPT","MWG",
-"GAS","PLX","OIL","PVS","PVT","PVD","BSR",
-"SSI","VND",
-"VPB","ACB",
-"SAB","MSN","MML","MCH","MSR",
-"BVH","POW",
-"STB","TPB",
-"PNJ","VJC",
-"GVR","DGC",
-"KDH","BCM",
-"VJC","HAH","CEO","NLG"
-]
+# ===== DANH SÁCH MÃ =====
+STOCKS = stock_listing()['symbol'].tolist()
 
-def calculate_indicators(df):
+# ===== INDICATORS =====
+def calc(df):
 
     df = df.sort_values("time")
 
-    exp1 = df['close'].ewm(span=12, adjust=False).mean()
-    exp2 = df['close'].ewm(span=26, adjust=False).mean()
-    df['macd'] = exp1 - exp2
-    df['signal'] = df['macd'].ewm(span=9, adjust=False).mean()
-
+    # MA
     df['ma20'] = df['close'].rolling(20).mean()
+
+    # MACD
+    exp1 = df['close'].ewm(span=12).mean()
+    exp2 = df['close'].ewm(span=26).mean()
+    df['macd'] = exp1 - exp2
+    df['signal'] = df['macd'].ewm(span=9).mean()
+
+    # RSI
+    delta = df['close'].diff()
+    gain = delta.clip(lower=0).rolling(14).mean()
+    loss = -delta.clip(upper=0).rolling(14).mean()
+    rs = gain / loss
+    df['rsi'] = 100 - (100 / (1 + rs))
+
+    # Bollinger
     df['std'] = df['close'].rolling(20).std()
     df['upper'] = df['ma20'] + 2*df['std']
     df['lower'] = df['ma20'] - 2*df['std']
 
-    low_min = df['low'].rolling(14).min()
-    high_max = df['high'].rolling(14).max()
-    df['%K'] = 100 * ((df['close'] - low_min) / (high_max - low_min))
-    df['%D'] = df['%K'].rolling(3).mean()
-
-    delta = df['close'].diff()
-    gain = (delta.where(delta > 0, 0)).rolling(14).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
-    rs = gain / loss
-    df['rsi'] = 100 - (100 / (1 + rs))
+    # Volume
+    df['vol_ma20'] = df['volume'].rolling(20).mean()
 
     return df
 
-
-def check_signal(df):
+# ===== CHẤM ĐIỂM =====
+def score(df):
 
     latest = df.iloc[-1]
     prev = df.iloc[-2]
 
-    buy = (
-        prev['macd'] < prev['signal'] and
-        latest['macd'] > latest['signal'] and
-        latest['close'] <= latest['lower'] * 1.02 and
-        latest['%K'] < 30 and
-        latest['%K'] > latest['%D'] and
-        latest['rsi'] < 35 and
-        latest['rsi'] > prev['rsi']
-    )
+    s = 0
 
-    sell = (
-        prev['macd'] > prev['signal'] and
-        latest['macd'] < latest['signal'] and
-        latest['close'] >= latest['upper'] * 0.98 and
-        latest['%K'] > 60 and
-        latest['%K'] < latest['%D'] and
-        latest['rsi'] > 55 and
-        latest['rsi'] < prev['rsi']
-    )
+    # MACD
+    if prev['macd'] < prev['signal'] and latest['macd'] > latest['signal']:
+        s += 20
 
-    if buy:
-        return "BUY"
-    elif sell:
-        return "SELL"
-    else:
-        return None
+    # RSI
+    if 45 < latest['rsi'] < 60 and latest['rsi'] > prev['rsi']:
+        s += 15
 
+    # Trend
+    if latest['close'] > latest['ma20']:
+        s += 15
 
-st.title("📊 BLUECHIP SCANNER VN")
+    # BB squeeze
+    width = (latest['upper'] - latest['lower']) / latest['ma20']
+    if width < 0.1:
+        s += 10
 
-if st.button("🔍 QUÉT THỊ TRƯỜNG BLUECHIP_VN"):
+    # Volume
+    if latest['volume'] > latest['vol_ma20'] * 1.5:
+        s += 20
+
+    # Breakout
+    if latest['close'] > df['close'].rolling(20).max().iloc[-2]:
+        s += 20
+
+    return s
+
+# ===== MAIN =====
+st.title("🔥 AI STOCK SCANNER VN – PRO")
+
+if st.button("🚀 QUÉT TOÀN THỊ TRƯỜNG"):
 
     results = []
 
-    for stock in STOCKS:
+    progress = st.progress(0)
+
+    for i, stock in enumerate(STOCKS[:300]):
+
         try:
-            df = stock_historical_data(
-                symbol=stock,
-                start_date="2025-01-01"
-            )
-
-            df = calculate_indicators(df)
-
+            df = stock_historical_data(stock, "2024-01-01")
             if len(df) < 30:
                 continue
 
-            signal = check_signal(df)
+            df = calc(df)
 
-            if signal:
+            sc = score(df)
+
+            if sc >= 70:
                 price = df.iloc[-1]['close']
+
                 results.append({
                     "Mã": stock,
                     "Giá": round(price,2),
-                    "Tín hiệu": signal
+                    "Điểm": sc,
+                    "TP": round(price*1.05,2),
+                    "SL": round(price*0.97,2)
                 })
 
         except:
             continue
 
+        progress.progress((i+1)/300)
+
     if results:
-        df_result = pd.DataFrame(results)
-        st.dataframe(df_result, use_container_width=True)
+        df_out = pd.DataFrame(results).sort_values(by="Điểm", ascending=False)
+        st.dataframe(df_out, use_container_width=True)
     else:
+        st.warning("Không có kèo ngon hôm nay.")
 
-        st.warning("Không có tín hiệu hôm nay.")
-
-
-
-
+# ===== AUTO REFRESH =====
+time.sleep(60)
+st.rerun()
